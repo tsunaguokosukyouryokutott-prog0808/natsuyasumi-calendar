@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>はみがきがんばりカレンダー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Mochiy+Pop+One&family=Hachi+Maru+Pop&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #e6d9b3;
+    --paper-shadow: #cbb98a;
+    --ink: #3a3226;
+    --ink-soft: #7d7052;
+    --red: #cf3626;
+    --red-dark: #8e2318;
+    --yellow: #e0ab1f;
+    --yellow-dark: #9c7215;
+    --blue: #2c5f8a;
+    --blue-dark: #1c4260;
+    --green: #4d6b30;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:16px 8px 24px;
+    background:
+      repeating-linear-gradient(1deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 3px),
+      radial-gradient(ellipse at 12% 5%, rgba(255,255,255,0.15), transparent 55%),
+      var(--paper);
+    font-family:'Zen Maru Gothic', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .sheet{
+    width:100%;
+    max-width:640px;
+    margin:0 auto;
+    background:var(--paper);
+    border:2.5px solid var(--ink);
+    border-radius:2px;
+    padding:16px 16px 20px;
+    position:relative;
+    box-shadow: 5px 5px 0 var(--paper-shadow);
+    transform:rotate(-0.4deg);
+  }
+  .sheet::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(rgba(70,58,38,0.07) 1px, transparent 1px),
+      radial-gradient(rgba(70,58,38,0.05) 1px, transparent 1px);
+    background-size: 3px 3px, 7px 7px;
+    background-position: 0 0, 2px 3px;
+    pointer-events:none;
+  }
+  .clip{
+    position:absolute; width:78px; height:56px; z-index:0;
+    background:
+      radial-gradient(circle, rgba(58,50,38,0.5) 1px, transparent 1.3px) 0 0/5px 5px,
+      #d8c89a;
+    border:1.5px solid var(--ink-soft);
+    opacity:0.75;
+  }
+  .clip.a{ top:6px; right:6px; transform:rotate(6deg); }
+  .clip.b{ bottom:8px; left:6px; transform:rotate(-8deg); }
+
+  .vine{ position:absolute; width:100px; height:100px; z-index:1; pointer-events:none; }
+  .vine.tl{ top:-4px; left:-4px; }
+  .vine.br{ bottom:-4px; right:-4px; transform:rotate(180deg); }
+
+  header{ position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+  .side-icons{ display:flex; justify-content:space-between; align-items:center; padding:0 6px; margin-top:-18px; position:relative; z-index:2; }
+  .side-icon{ width:42px; height:50px; }
+  .nav-btn{
+    background:#f7edd2; border:2px solid var(--ink); color:var(--ink);
+    width:34px; height:34px; border-radius:50%;
+    font-size:16px; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .nav-btn:active{ transform:scale(0.9); }
+
+  .title-burst{ position:relative; width:280px; height:132px; margin:0 auto; }
+  .title-burst svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .title-text{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    transform:rotate(-2deg);
+  }
+  .title-text .line1{
+    font-family:'Hachi Maru Pop', 'Mochiy Pop One', cursive;
+    font-size:40px; line-height:1.05; letter-spacing:0.5px; white-space:nowrap;
+    color:var(--yellow); -webkit-text-stroke:1px var(--ink); text-stroke:1px var(--ink);
+    text-shadow:-1px 0 0 var(--yellow), 1px 0 0 var(--yellow), 0 -1px 0 var(--yellow), 0 1px 0 var(--yellow), 2px 2px 0 var(--red-dark);
+  }
+  .title-text .line2{
+    font-family:'Hachi Maru Pop', 'Mochiy Pop One', cursive;
+    font-size:36px; line-height:1.1; letter-spacing:0.5px; white-space:nowrap;
+    color:var(--yellow); -webkit-text-stroke:1px var(--ink); text-stroke:1px var(--ink);
+    text-shadow:-1px 0 0 var(--yellow), 1px 0 0 var(--yellow), 0 -1px 0 var(--yellow), 0 1px 0 var(--yellow), 2px 2px 0 var(--red-dark);
+  }
+  .title-text .small{
+    font-family:'Hachi Maru Pop', 'Mochiy Pop One', cursive;
+    font-size:40px; color:var(--red); margin-top:6px; white-space:nowrap;
+    -webkit-text-stroke:1px var(--ink); text-stroke:1px var(--ink);
+    text-shadow:-1px 0 0 var(--red), 1px 0 0 var(--red), 0 -1px 0 var(--red), 0 1px 0 var(--red), 2px 2px 0 var(--ink);
+  }
+
+  .gearbar{ text-align:right; position:relative; z-index:2; }
+  .gear{ background:none;border:none;color:var(--ink-soft); font-size:20px;cursor:pointer; }
+
+  .panel{
+    margin-top:10px; border:2px dashed var(--ink-soft); border-radius:4px;
+    padding:10px 12px; position:relative; z-index:2; display:none; background:rgba(255,252,240,0.35);
+  }
+  .panel.open{ display:block; }
+  .panel label{ display:block; font-size:12px; color:var(--ink-soft); margin:8px 0 3px; }
+  .panel input[type=text]{
+    width:100%; font-family:inherit; font-size:14px;
+    padding:6px 8px; border:1.5px solid var(--ink-soft);
+    border-radius:4px; background:rgba(255,255,255,0.55); color:var(--ink);
+  }
+
+  .calbox{
+    margin-top:0; position:relative; z-index:2;
+    border:2.5px dashed var(--ink); border-radius:4px;
+    padding:14px 8px 8px;
+  }
+  .leafcorner{ position:absolute; width:34px; height:24px; z-index:3; }
+  .leafcorner.l{ top:-13px; left:14px; }
+  .leafcorner.r{ top:-13px; right:14px; transform:scaleX(-1); }
+
+  .weekday-row{ display:grid; grid-template-columns:repeat(7,1fr); margin:0 0 4px; }
+  .weekday-row span{ text-align:center; font-size:13px; font-weight:500; color:var(--ink-soft); }
+  .weekday-row span:first-child{ color:var(--red); }
+  .weekday-row span:last-child{ color:var(--blue); }
+
+  .grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cell{ min-height:118px; position:relative; cursor:pointer; }
+  .cell.empty{ visibility:hidden; }
+  .daynum{
+    font-family:'Yomogi', cursive; font-size:14px; color:var(--ink-soft);
+    position:absolute; top:0; left:3px; z-index:2;
+  }
+  .stampwrap{
+    position:absolute; top:4px; left:0; right:0; bottom:2px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .stampwrap svg{ width:98%; height:98%; }
+
+  .legend{
+    margin-top:16px; display:flex; align-items:center; justify-content:center; gap:14px;
+    font-family:'Hachi Maru Pop', 'Zen Maru Gothic', sans-serif;
+    font-size:13px; color:var(--ink-soft); flex-wrap:wrap; position:relative; z-index:2;
+  }
+  .legend .tooth-mini{ width:16px; height:16px; vertical-align:-3px; margin-right:3px; }
+  .hint{ font-family:'Hachi Maru Pop', 'Zen Maru Gothic', sans-serif; font-size:12px; color:var(--ink-soft); margin-top:8px; text-align:center; position:relative; z-index:2; }
+
+  .footer-row{ display:flex; align-items:flex-end; justify-content:space-between; margin-top:6px; position:relative; z-index:2; }
+  .bubble{
+    font-family:'Hachi Maru Pop', 'Mochiy Pop One', cursive; font-size:13px; color:var(--ink);
+    background:#fbf5df; border:2px solid var(--ink); border-radius:14px;
+    padding:4px 10px; position:relative; transform:rotate(-2deg);
+    white-space:nowrap;
+  }
+  .bubble::after{
+    content:""; position:absolute; bottom:-8px; left:18px;
+    border:6px solid transparent; border-top-color:var(--ink);
+  }
+  .bubble::before{
+    content:""; position:absolute; bottom:-5px; left:20px;
+    border:5px solid transparent; border-top-color:#fbf5df; z-index:1;
+  }
+  .mascot{ width:56px; }
+  .medal{ width:46px; flex:none; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="roughen">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3"/>
+  </filter>
+</svg>
+
+<div class="sheet">
+  <div class="clip a"></div>
+  <div class="clip b"></div>
+
+  <svg class="vine tl" viewBox="0 0 100 100"><g filter="url(#roughen)">
+    <path d="M2,2 C20,6 10,25 28,28 C46,31 34,50 52,52" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+    <ellipse cx="18" cy="10" rx="7" ry="4" fill="var(--green)" transform="rotate(30 18 10)"/>
+    <ellipse cx="14" cy="24" rx="6" ry="3.5" fill="var(--green)" transform="rotate(-20 14 24)"/>
+    <ellipse cx="34" cy="30" rx="6" ry="3.5" fill="var(--green)" transform="rotate(40 34 30)"/>
+    <ellipse cx="30" cy="42" rx="6" ry="3.5" fill="var(--green)" transform="rotate(-10 30 42)"/>
+    <ellipse cx="48" cy="50" rx="6" ry="3.5" fill="var(--green)" transform="rotate(25 48 50)"/>
+  </g></svg>
+  <svg class="vine br" viewBox="0 0 100 100"><g filter="url(#roughen)">
+    <path d="M2,2 C20,6 10,25 28,28 C46,31 34,50 52,52" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+    <ellipse cx="18" cy="10" rx="7" ry="4" fill="var(--green)" transform="rotate(30 18 10)"/>
+    <ellipse cx="14" cy="24" rx="6" ry="3.5" fill="var(--green)" transform="rotate(-20 14 24)"/>
+    <ellipse cx="34" cy="30" rx="6" ry="3.5" fill="var(--green)" transform="rotate(40 34 30)"/>
+    <ellipse cx="30" cy="42" rx="6" ry="3.5" fill="var(--green)" transform="rotate(-10 30 42)"/>
+    <ellipse cx="48" cy="50" rx="6" ry="3.5" fill="var(--green)" transform="rotate(25 48 50)"/>
+  </g></svg>
+
+  <header>
+    <button class="nav-btn" id="prevBtn" aria-label="前の月">&#8592;</button>
+    <div class="title-burst">
+      <svg viewBox="0 0 280 132" id="burstSvg"></svg>
+      <div class="title-text">
+        <span class="line1">夏休み</span><span class="line2">タスクカレンダー</span>
+        <span class="small" id="monthTitle">7月</span>
+      </div>
+    </div>
+    <button class="nav-btn" id="nextBtn" aria-label="次の月">&#8594;</button>
+  </header>
+
+  <div class="gearbar"><button class="gear" id="gearBtn" title="タスクの設定">&#9881;</button></div>
+
+  <div class="panel" id="panel">
+    <label>タスク1（赤）</label>
+    <input type="text" id="task1" maxlength="20" placeholder="朝ごはん後の歯みがき">
+    <label>タスク2（黄）</label>
+    <input type="text" id="task2" maxlength="20" placeholder="昼の歯みがき">
+    <label>タスク3（青）</label>
+    <input type="text" id="task3" maxlength="20" placeholder="夜の歯みがき">
+  </div>
+
+  <div class="side-icons">
+    <svg class="side-icon" viewBox="0 0 60 90">
+      <g filter="url(#roughen)">
+        <rect x="24" y="30" width="12" height="52" rx="6" fill="var(--blue)" stroke="var(--ink)" stroke-width="2.4"/>
+        <rect x="18" y="10" width="24" height="24" rx="10" fill="#fbf3dc" stroke="var(--ink)" stroke-width="2.4"/>
+        <line x1="22" y1="10" x2="20" y2="2" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="28" y1="9" x2="27" y2="1" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="34" y1="9" x2="36" y2="1" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="40" y1="10" x2="43" y2="2" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="24" cy="22" r="2" fill="var(--ink)"/><circle cx="34" cy="22" r="2" fill="var(--ink)"/>
+        <path d="M23,27 Q29,32 35,27" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M50,20 L52,24 L56,25 L52,26 L50,30 L48,26 L44,25 L48,24 Z" fill="var(--yellow)" stroke="var(--ink)" stroke-width="1.6"/>
+      </g>
+    </svg>
+    <svg class="side-icon" viewBox="0 0 60 90">
+      <g filter="url(#roughen)">
+        <rect x="16" y="30" width="28" height="46" rx="5" fill="var(--red)" stroke="var(--ink)" stroke-width="2.4"/>
+        <rect x="19" y="16" width="22" height="16" rx="4" fill="#fbf3dc" stroke="var(--ink)" stroke-width="2.4"/>
+        <path d="M16,76 Q30,84 44,76 L44,80 Q30,88 16,80 Z" fill="var(--red-dark)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="24" cy="46" r="2.2" fill="var(--ink)"/><circle cx="36" cy="46" r="2.2" fill="var(--ink)"/>
+        <path d="M23,52 Q30,58 37,52" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="10" cy="18" r="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+        <circle cx="6" cy="10" r="2.6" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="calbox">
+    <svg class="leafcorner l" viewBox="0 0 40 26"><g filter="url(#roughen)">
+      <ellipse cx="10" cy="14" rx="8" ry="4" fill="var(--green)" transform="rotate(20 10 14)"/>
+      <ellipse cx="24" cy="10" rx="7" ry="3.5" fill="var(--green)" transform="rotate(-15 24 10)"/>
+    </g></svg>
+    <svg class="leafcorner r" viewBox="0 0 40 26"><g filter="url(#roughen)">
+      <ellipse cx="10" cy="14" rx="8" ry="4" fill="var(--green)" transform="rotate(20 10 14)"/>
+      <ellipse cx="24" cy="10" rx="7" ry="3.5" fill="var(--green)" transform="rotate(-15 24 10)"/>
+    </g></svg>
+
+    <div class="weekday-row">
+      <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="footer-row">
+    <svg class="medal" viewBox="0 0 60 90">
+      <g filter="url(#roughen)">
+        <path d="M20,2 L30,22 L10,22 Z" fill="var(--red)" stroke="var(--ink)" stroke-width="2"/>
+        <path d="M40,2 L50,22 L30,22 Z" fill="var(--blue)" stroke="var(--ink)" stroke-width="2"/>
+        <circle cx="30" cy="52" r="22" fill="var(--yellow)" stroke="var(--ink)" stroke-width="3"/>
+        <circle cx="30" cy="52" r="15" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 2"/>
+      </g>
+      <text x="30" y="59" font-size="20" text-anchor="middle" fill="var(--ink)" font-family="'Hachi Maru Pop', cursive">1</text>
+    </svg>
+    <p class="hint" style="margin:0; flex:1; text-align:center;">歯をタップすると色が変わります</p>
+    <div style="display:flex; align-items:flex-end; gap:6px;">
+      <span class="bubble">がんばれ！</span>
+      <svg class="mascot" viewBox="0 0 100 100">
+        <g filter="url(#roughen)">
+          <circle cx="50" cy="26" r="14" fill="#f3d9ae" stroke="var(--ink)" stroke-width="2.5"/>
+          <path d="M40,18 Q50,6 60,18" fill="none" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="50" y1="40" x2="50" y2="66" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="50" y1="48" x2="34" y2="40" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="50" y1="48" x2="70" y2="36" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="50" y1="66" x2="34" y2="86" stroke="var(--ink)" stroke-width="3"/>
+          <line x1="50" y1="66" x2="66" y2="88" stroke="var(--ink)" stroke-width="3"/>
+          <path d="M42,52 L58,52 L54,68 L46,68 Z" fill="var(--blue)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+let cur = new Date();
+cur.setDate(1);
+let tasks = ["", "", ""];
+let monthData = {};
+
+function monthKey(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0"); }
+
+function toothPath(){
+  return "M50,8 C26,8 14,24 16,40 C17,50 23,53 22,60 C21,68 17,74 26,79 " +
+         "C34,84 38,74 41,67 C43,63 47,61 50,61 C53,61 57,63 59,67 " +
+         "C62,74 66,84 74,79 C83,74 79,68 78,60 C77,53 83,50 84,40 C86,24 74,8 50,8 Z";
+}
+
+function colorFor(count){
+  if(count>=3) return {fill:"var(--blue)", stroke:"var(--blue-dark)"};
+  if(count===2) return {fill:"var(--yellow)", stroke:"var(--yellow-dark)"};
+  if(count===1) return {fill:"var(--red)", stroke:"var(--red-dark)"};
+  return null;
+}
+
+const VARIANTS = [
+  {eyes:"dot",   mouth:"smile", acc:"none"},
+  {eyes:"dot",   mouth:"smile", acc:"crown"},
+  {eyes:"dot",   mouth:"open",  acc:"toothpaste"},
+  {eyes:"dot",   mouth:"braces",acc:"braces"},
+  {eyes:"closed",mouth:"smile", acc:"sleepmask"},
+  {eyes:"happy", mouth:"smile", acc:"bubbles"}
+];
+
+function eyesSVG(type){
+  if(type==="closed") return "";
+  if(type==="happy"){
+    return `<path d="M33,32 Q38,26 43,32" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M57,32 Q62,26 67,32" fill="none" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/>`;
+  }
+  return `<circle cx="38" cy="30" r="3.2" fill="var(--ink)"/><circle cx="62" cy="30" r="3.2" fill="var(--ink)"/>`;
+}
+function mouthSVG(type){
+  if(type==="open") return `<path d="M38,41 Q50,54 62,41 Q50,48 38,41 Z" fill="var(--ink)"/>`;
+  if(type==="braces") return `<rect x="36" y="40" width="28" height="10" rx="2" fill="none" stroke="var(--ink)" stroke-width="2.4"/>
+      <line x1="43" y1="40" x2="43" y2="50" stroke="var(--ink)" stroke-width="1.6"/>
+      <line x1="50" y1="40" x2="50" y2="50" stroke="var(--ink)" stroke-width="1.6"/>
+      <line x1="57" y1="40" x2="57" y2="50" stroke="var(--ink)" stroke-width="1.6"/>
+      <line x1="36" y1="45" x2="64" y2="45" stroke="var(--ink)" stroke-width="1.6"/>`;
+  return `<path d="M37,40 Q50,50 63,40" fill="none" stroke="var(--ink)" stroke-width="2.8" stroke-linecap="round"/>`;
+}
+function accessorySVG(type){
+  if(type==="crown") return `<path d="M28,10 L34,-4 L42,8 L50,-8 L58,8 L66,-4 L72,10 Z" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/>
+      <circle cx="34" cy="-4" r="2.2" fill="var(--ink)"/><circle cx="50" cy="-8" r="2.2" fill="var(--ink)"/><circle cx="66" cy="-4" r="2.2" fill="var(--ink)"/>`;
+  if(type==="toothpaste") return `<g transform="rotate(-12 90 55)">
+      <rect x="84" y="44" width="10" height="22" rx="2" fill="none" stroke="var(--ink)" stroke-width="2"/>
+      <rect x="85" y="38" width="8" height="7" rx="1.5" fill="none" stroke="var(--ink)" stroke-width="2"/>
+      <line x1="84" y1="56" x2="94" y2="56" stroke="var(--ink)" stroke-width="1.6"/>
+    </g>`;
+  if(type==="braces") return "";
+  if(type==="sleepmask") return `<rect x="27" y="23" width="46" height="13" rx="6" fill="none" stroke="var(--ink)" stroke-width="2.4"/>
+      <line x1="27" y1="29" x2="10" y2="22" stroke="var(--ink)" stroke-width="2"/>
+      <line x1="73" y1="29" x2="90" y2="22" stroke="var(--ink)" stroke-width="2"/>`;
+  if(type==="bubbles") return `<circle cx="38" cy="-8" r="6" fill="none" stroke="var(--ink)" stroke-width="1.8"/>
+      <circle cx="52" cy="-16" r="8" fill="none" stroke="var(--ink)" stroke-width="1.8"/>
+      <circle cx="66" cy="-6" r="5" fill="none" stroke="var(--ink)" stroke-width="1.8"/>`;
+  return "";
+}
+
+function toothSVG(day, count){
+  const c = colorFor(count);
+  const fill = c ? c.fill : "#fbf3dc";
+  const stroke = c ? c.stroke : "var(--ink-soft)";
+  const v = VARIANTS[(day-1) % VARIANTS.length];
+  const rot = ((day*11)%7)-3;
+  const path = toothPath();
+  return `<svg viewBox="-2 -17 104 100" style="transform:rotate(${rot}deg)">
+    <path d="${path}" fill="${fill}" stroke="${stroke}" stroke-width="2.6"/>
+    <ellipse cx="36" cy="20" rx="7" ry="3.5" fill="#ffffff" opacity="0.3" transform="rotate(-20 36 20)"/>
+    <ellipse cx="30" cy="38" rx="4.5" ry="3" fill="#e8607a" opacity="0.45"/>
+    <ellipse cx="70" cy="38" rx="4.5" ry="3" fill="#e8607a" opacity="0.45"/>
+    ${eyesSVG(v.eyes)}
+    ${mouthSVG(v.mouth)}
+    ${accessorySVG(v.acc)}
+  </svg>`;
+}
+
+function burstPath(){
+  const cx=140, cy=66, R=72, n=12, aspect=0.85;
+  const pts = [];
+  for(let i=0;i<n;i++){
+    const angle = (i/n) * Math.PI*2;
+    pts.push({x: cx + R*Math.cos(angle), y: cy + R*Math.sin(angle)*aspect});
+  }
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)} `;
+  for(let i=0;i<n;i++){
+    const p = pts[(i+1)%n];
+    const chord = Math.hypot(p.x-pts[i].x, p.y-pts[i].y);
+    const r = (chord*0.64).toFixed(1);
+    d += `A${r},${r} 0 0,1 ${p.x.toFixed(1)},${p.y.toFixed(1)} `;
+  }
+  return d + "Z";
+}
+
+function initBurst(){
+  const svg = document.getElementById("burstSvg");
+  svg.innerHTML = `<g filter="url(#roughen)"><path d="${burstPath()}" fill="#f7edd0" stroke="var(--ink)" stroke-width="3"/></g>`;
+}
+
+function toothSVGmini(count){
+  const c = colorFor(count);
+  return `<svg class="tooth-mini" viewBox="0 0 100 100">
+    <path d="${toothPath()}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="4"/>
+    <circle cx="38" cy="30" r="4" fill="var(--ink)"/><circle cx="62" cy="30" r="4" fill="var(--ink)"/>
+    <path d="M37,40 Q50,50 63,40" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function renderLegend(){
+  const legend = document.getElementById("legend");
+  legend.innerHTML = [1,2,3].map(n => `<span>${toothSVGmini(n)}${n}つ達成</span>`).join("");
+}
+
+function render(){
+  document.getElementById("monthTitle").textContent = (cur.getMonth()+1) + "月";
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const firstDow = new Date(cur.getFullYear(), cur.getMonth(), 1).getDay();
+  const daysInMonth = new Date(cur.getFullYear(), cur.getMonth()+1, 0).getDate();
+  const key = monthKey(cur);
+  const data = monthData[key] || {};
+
+  for(let i=0;i<firstDow;i++){
+    const e = document.createElement("div");
+    e.className = "cell empty";
+    grid.appendChild(e);
+  }
+  for(let day=1; day<=daysInMonth; day++){
+    const flags = data[day] || [false,false,false];
+    const count = flags.filter(Boolean).length;
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.day = day;
+    cell.innerHTML = `
+      <span class="daynum">${day}</span>
+      <div class="stampwrap">${toothSVG(day, count)}</div>
+    `;
+    grid.appendChild(cell);
+  }
+
+  renderLegend();
+}
+
+async function handleGridClick(ev){
+  const cell = ev.target.closest(".cell");
+  if(cell && cell.dataset.day){
+    const day = parseInt(cell.dataset.day);
+    const k = monthKey(cur);
+    if(!monthData[k]) monthData[k] = {};
+    const flags = monthData[k][day] || [false,false,false];
+    const count = flags.filter(Boolean).length;
+    const next = (count+1) % 4;
+    monthData[k][day] = [next>=1, next>=2, next>=3];
+    await saveMonth(k);
+    render();
+  }
+}
+document.getElementById("grid").addEventListener("click", handleGridClick);
+
+const STORAGE_PREFIX = "toothCal_";
+
+async function saveMonth(key){
+  try{ localStorage.setItem(STORAGE_PREFIX+"month_"+key, JSON.stringify(monthData[key])); }
+  catch(e){ console.error("save month failed", e); }
+}
+async function loadMonth(key){
+  try{
+    const raw = localStorage.getItem(STORAGE_PREFIX+"month_"+key);
+    monthData[key] = raw ? JSON.parse(raw) : {};
+  }catch(e){ monthData[key] = {}; }
+}
+async function saveSettings(){
+  try{ localStorage.setItem(STORAGE_PREFIX+"settings", JSON.stringify({tasks})); }
+  catch(e){ console.error("save settings failed", e); }
+}
+async function loadSettings(){
+  try{
+    const raw = localStorage.getItem(STORAGE_PREFIX+"settings");
+    if(raw){ const parsed = JSON.parse(raw); tasks = parsed.tasks || ["","",""]; }
+  }catch(e){ /* no settings yet */ }
+  document.getElementById("task1").value = tasks[0]||"";
+  document.getElementById("task2").value = tasks[1]||"";
+  document.getElementById("task3").value = tasks[2]||"";
+}
+
+
+document.getElementById("prevBtn").addEventListener("click", async ()=>{
+  cur.setMonth(cur.getMonth()-1);
+  await loadMonth(monthKey(cur));
+  render();
+});
+document.getElementById("nextBtn").addEventListener("click", async ()=>{
+  cur.setMonth(cur.getMonth()+1);
+  await loadMonth(monthKey(cur));
+  render();
+});
+document.getElementById("gearBtn").addEventListener("click", ()=>{
+  document.getElementById("panel").classList.toggle("open");
+});
+[1,2,3].forEach(n=>{
+  document.getElementById("task"+n).addEventListener("input", async (e)=>{
+    tasks[n-1] = e.target.value;
+    await saveSettings();
+    render();
+  });
+});
+
+(async function init(){
+  initBurst();
+  await loadSettings();
+  await loadMonth(monthKey(cur));
+  render();
+})();
+</script>
+</body>
+</html>
